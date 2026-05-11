@@ -9,8 +9,8 @@
       <p class="eyebrow eyebrow-light">Main Campus</p>
       <h1>Study Room Computer Status</h1>
       <p>
-        Click a green computer to reserve it. Grey workstations are already in use or reserved,
-        and gold workstations need service support.
+        Click a green computer to reserve it. Each user can hold one device reservation at a time.
+        Grey workstations are already in use or reserved, and gold workstations need service support.
       </p>
     </div>
     <div class="refresh-card refresh-card-hero" aria-live="polite">
@@ -163,6 +163,7 @@
         </div>
         <ul>
           <li>Click any green computer icon to reserve it immediately.</li>
+          <li>Each user can reserve only one device at a time.</li>
           <li>The selected computer changes to reserved and is removed from available count.</li>
           <li>Use the filters to find a computer by room, level, workstation type, or status.</li>
         </ul>
@@ -292,6 +293,11 @@ onBeforeUnmount(() => {
 
 function reserveMachine(machine) {
   if (!isAvailable(machine)) {
+    return
+  }
+
+  if (reservation.value) {
+    showToast(`You already reserved ${reservation.value.id}. Cancel it before choosing another device.`)
     return
   }
 
