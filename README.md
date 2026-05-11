@@ -1,6 +1,6 @@
 # Study Room Booking System
 
-A lightweight University of Auckland study room booking interface with a dedicated live computer status subpage.
+A lightweight study room booking interface with a dedicated live computer status subpage.
 
 ## Pages
 
