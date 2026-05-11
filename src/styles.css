@@ -565,6 +565,29 @@ select:focus {
   border-top: 5px solid var(--blue-3);
 }
 
+.reservation-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 16px;
+  padding: 18px 20px;
+  border: 1px solid #99d1ad;
+  border-left: 6px solid var(--green);
+  border-radius: 8px;
+  background: #f4fbf6;
+  box-shadow: var(--shadow);
+}
+
+.reservation-panel h2 {
+  color: var(--green);
+}
+
+.reservation-panel p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
 .legend-row {
   display: flex;
   flex-wrap: wrap;
@@ -622,6 +645,11 @@ select:focus {
   background: #fbfdff;
 }
 
+.room-map-section {
+  display: grid;
+  gap: 16px;
+}
+
 .room-section-header {
   display: flex;
   align-items: flex-start;
@@ -638,115 +666,191 @@ select:focus {
   font-weight: 700;
 }
 
-.computer-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  gap: 12px;
+.visual-room {
+  position: relative;
+  padding: 48px 18px 18px;
+  border: 1px solid #bfd5e8;
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(0, 94, 184, 0.07) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(0, 94, 184, 0.07) 1px, transparent 1px),
+    #f7fbff;
+  background-size: 34px 34px;
 }
 
-.computer-card {
+.room-door {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  min-width: 72px;
+  padding: 6px 12px;
+  border: 1px solid #a7bdd2;
+  border-radius: 999px;
+  color: var(--muted);
+  background: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.computer-map {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
   gap: 14px;
-  min-height: 244px;
-  padding: 16px;
+}
+
+.computer-desk {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  min-height: 132px;
+  padding: 12px 10px;
+  border: 2px solid #b7c8d9;
+  border-radius: 8px;
+  color: var(--ink);
+  background: #fff;
+  text-align: center;
+}
+
+.computer-desk.is-available {
+  border-color: #7fc898;
+  background: #f1faf4;
+}
+
+.computer-desk.is-available:hover,
+.computer-desk.is-available:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 4px rgba(15, 127, 63, 0.14);
+  transform: translateY(-2px);
+}
+
+.computer-desk.is-unavailable {
+  color: #52616f;
+  background: #eef3f8;
+}
+
+.computer-desk.is-service {
+  color: #4b3500;
+  border-color: #e1bd47;
+  background: #fff7da;
+}
+
+.computer-desk:disabled {
+  cursor: not-allowed;
+}
+
+.monitor-shape {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 48px;
+  border: 4px solid #76899b;
+  border-radius: 6px;
+  background: #dbe4ec;
+}
+
+.monitor-shape::before {
+  content: "";
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  width: 10px;
+  height: 14px;
+  border-radius: 0 0 3px 3px;
+  background: #76899b;
+  transform: translateX(-50%);
+}
+
+.monitor-shape::after {
+  content: "";
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  width: 40px;
+  height: 7px;
+  border-radius: 999px;
+  background: #76899b;
+  transform: translateX(-50%);
+}
+
+.monitor-screen {
+  color: #52616f;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.computer-desk.is-available .monitor-shape {
+  border-color: var(--green);
+  background: #dff3e6;
+}
+
+.computer-desk.is-available .monitor-shape::before,
+.computer-desk.is-available .monitor-shape::after {
+  background: var(--green);
+}
+
+.computer-desk.is-available .monitor-screen {
+  color: var(--green);
+}
+
+.computer-desk.is-service .monitor-shape {
+  border-color: #bc921b;
+  background: #fff1bd;
+}
+
+.computer-desk.is-service .monitor-shape::before,
+.computer-desk.is-service .monitor-shape::after {
+  background: #bc921b;
+}
+
+.desk-id {
+  margin-top: 12px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.desk-meta {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.room-machine-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.mini-machine-card {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
   border: 1px solid var(--border);
-  border-left-width: 5px;
+  border-left: 5px solid #8b98a7;
   border-radius: 8px;
   background: #fff;
 }
 
-.computer-card.is-available {
-  border-color: #a8d7b7;
+.mini-machine-card.is-available {
   border-left-color: var(--green);
-  background: #f5fbf7;
+  background: #f8fdf9;
 }
 
-.computer-card.is-unavailable {
-  border-left-color: #8b98a7;
-}
-
-.computer-card.is-service {
+.mini-machine-card.is-service {
   border-left-color: var(--gold);
   background: var(--service-bg);
 }
 
-.computer-card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.computer-id {
-  color: var(--ink);
-  font-size: 16px;
-  font-weight: 800;
-}
-
-.status-chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 28px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  color: #fff;
-  background: #8b98a7;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.is-available .status-chip {
-  background: var(--green);
-}
-
-.is-service .status-chip {
-  color: #4b3500;
-  background: #f4d27a;
-}
-
-.computer-card p {
-  margin-bottom: 0;
-  color: var(--muted);
-  font-size: 14px;
-}
-
-.computer-card dl {
-  display: grid;
-  gap: 10px;
-  margin: 0;
-}
-
-.computer-card dl > div {
-  display: grid;
-  grid-template-columns: 72px minmax(0, 1fr);
-  gap: 10px;
-}
-
-.computer-card dt {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.computer-card dd {
-  min-width: 0;
-  margin: 0;
-  color: var(--ink);
+.mini-machine-card strong {
   font-size: 13px;
-  line-height: 1.45;
 }
 
-.reserve-button {
-  align-self: end;
-  color: #fff;
-  background: var(--green);
-}
-
-.reserve-button:disabled {
-  color: #53606e;
-  background: #e4e9ef;
-  cursor: not-allowed;
+.mini-machine-card span,
+.mini-machine-card small {
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .notice-band {
