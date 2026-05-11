@@ -28,101 +28,113 @@
     </header>
 
     <main>
-      <section class="status-lead">
+      <section class="page-hero status-page-hero">
         <div>
-          <nav class="breadcrumb" aria-label="Breadcrumb">
+          <nav class="breadcrumb hero-breadcrumb" aria-label="Breadcrumb">
             <a href="/index.html">Home</a>
             <span>Student IT Hub</span>
             <span>Live computer status</span>
           </nav>
-          <p class="eyebrow">City Campus</p>
+          <p class="eyebrow eyebrow-light">City Campus</p>
           <h1>Study Room Computer Status</h1>
           <p>
             Track every bookable workstation in University of Auckland study spaces.
             Green workstations are available now and can be reserved.
           </p>
         </div>
-        <div class="refresh-card" aria-live="polite">
+        <div class="refresh-card refresh-card-hero" aria-live="polite">
           <span>Last refreshed</span>
           <strong id="lastUpdated">--</strong>
           <button id="refreshButton" class="secondary-button" type="button">Refresh</button>
         </div>
       </section>
 
-      <section class="status-summary" aria-label="Availability summary">
-        <article>
-          <span>Total computers</span>
-          <strong id="totalCount">0</strong>
-        </article>
-        <article class="summary-available">
-          <span>Available now</span>
-          <strong id="availableCount">0</strong>
-        </article>
-        <article>
-          <span>Unavailable</span>
-          <strong id="unavailableCount">0</strong>
-        </article>
-        <article>
-          <span>Utilisation</span>
-          <strong id="utilisationCount">0%</strong>
-        </article>
-      </section>
+      <div class="page-layout">
+        <aside class="side-nav" aria-label="Student IT Hub navigation">
+          <strong>Student IT Hub</strong>
+          <a href="/index.html">Book a study computer</a>
+          <a class="active" href="/status.html">Live computer status</a>
+          <a href="#boardTitle">Study space locations</a>
+          <a href="#guidanceTitle">Booking guidance</a>
+        </aside>
 
-      <section class="status-toolbar" aria-label="Computer filters">
-        <label>
-          <span>Search</span>
-          <input id="searchInput" type="search" placeholder="PC, building, level, or workstation type" />
-        </label>
-        <label>
-          <span>Location</span>
-          <select id="locationFilter">
-            <option value="all">All locations</option>
-          </select>
-        </label>
-        <label>
-          <span>Level</span>
-          <select id="levelFilter">
-            <option value="all">All levels</option>
-          </select>
-        </label>
-        <label>
-          <span>Status</span>
-          <select id="statusFilter">
-            <option value="all">All statuses</option>
-            <option value="available">Available</option>
-            <option value="unavailable">Unavailable</option>
-          </select>
-        </label>
-      </section>
+        <div class="page-content">
+          <section class="status-summary" aria-label="Availability summary">
+            <article>
+              <span>Total computers</span>
+              <strong id="totalCount">0</strong>
+            </article>
+            <article class="summary-available">
+              <span>Available now</span>
+              <strong id="availableCount">0</strong>
+            </article>
+            <article>
+              <span>Unavailable</span>
+              <strong id="unavailableCount">0</strong>
+            </article>
+            <article>
+              <span>Utilisation</span>
+              <strong id="utilisationCount">0%</strong>
+            </article>
+          </section>
 
-      <div class="legend-row" aria-label="Status legend">
-        <span><i class="legend-available"></i>Available and bookable</span>
-        <span><i class="legend-unavailable"></i>Unavailable</span>
-        <span><i class="legend-service"></i>Service issue</span>
-      </div>
+          <section class="status-toolbar" aria-label="Computer filters">
+            <label>
+              <span>Search</span>
+              <input id="searchInput" type="search" placeholder="PC, building, level, or workstation type" />
+            </label>
+            <label>
+              <span>Location</span>
+              <select id="locationFilter">
+                <option value="all">All locations</option>
+              </select>
+            </label>
+            <label>
+              <span>Level</span>
+              <select id="levelFilter">
+                <option value="all">All levels</option>
+              </select>
+            </label>
+            <label>
+              <span>Status</span>
+              <select id="statusFilter">
+                <option value="all">All statuses</option>
+                <option value="available">Available</option>
+                <option value="unavailable">Unavailable</option>
+              </select>
+            </label>
+          </section>
 
-      <section class="campus-board" aria-labelledby="boardTitle">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">Workstation map</p>
-            <h2 id="boardTitle">Computers by study area</h2>
+          <div class="legend-row" aria-label="Status legend">
+            <span><i class="legend-available"></i>Available and bookable</span>
+            <span><i class="legend-unavailable"></i>Unavailable</span>
+            <span><i class="legend-service"></i>Service issue</span>
           </div>
-          <span id="visibleCount">0 computers shown</span>
-        </div>
-        <div id="roomSections" class="room-sections"></div>
-      </section>
 
-      <section class="notice-band" aria-labelledby="guidanceTitle">
-        <div>
-          <p class="eyebrow">Booking guidance</p>
-          <h2 id="guidanceTitle">Plan your session before you arrive</h2>
+          <section class="campus-board" aria-labelledby="boardTitle">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Workstation map</p>
+                <h2 id="boardTitle">Computers by study area</h2>
+              </div>
+              <span id="visibleCount">0 computers shown</span>
+            </div>
+            <div id="roomSections" class="room-sections"></div>
+          </section>
+
+          <section class="notice-band" aria-labelledby="guidanceTitle">
+            <div>
+              <p class="eyebrow">Booking guidance</p>
+              <h2 id="guidanceTitle">Plan your session before you arrive</h2>
+            </div>
+            <ul>
+              <li>Only green computers can be reserved from this page.</li>
+              <li>If a computer is unavailable, the reason is shown on its card.</li>
+              <li>Unbooked computers may be used without an advance booking.</li>
+            </ul>
+          </section>
         </div>
-        <ul>
-          <li>Only green computers can be reserved from this page.</li>
-          <li>If a computer is unavailable, the reason is shown on its card.</li>
-          <li>Unbooked computers may be used without an advance booking.</li>
-        </ul>
-      </section>
+      </div>
     </main>
 
     <div id="bookingToast" class="toast" hidden></div>

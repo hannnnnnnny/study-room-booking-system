@@ -28,90 +28,114 @@
     </header>
 
     <main>
-      <section class="booking-workspace">
-        <div class="booking-panel">
-          <p class="eyebrow">Computer booking</p>
-          <h1>Reserve a study room computer</h1>
-          <form class="booking-form">
-            <label>
-              <span>Location</span>
-              <select>
-                <option>Kate Edger Information Commons</option>
-                <option>General Library</option>
-                <option>Owen G Glenn Building</option>
-                <option>Engineering Building 405</option>
-              </select>
-            </label>
-            <label>
-              <span>Date</span>
-              <input type="date" value="2026-05-11" />
-            </label>
-            <label>
-              <span>Start time</span>
-              <select>
-                <option>1:00 PM</option>
-                <option>1:30 PM</option>
-                <option>2:00 PM</option>
-                <option>2:30 PM</option>
-              </select>
-            </label>
-            <label>
-              <span>Duration</span>
-              <select>
-                <option>1 hour</option>
-                <option>2 hours</option>
-                <option>3 hours</option>
-              </select>
-            </label>
-            <label class="form-wide">
-              <span>Student ID</span>
-              <input type="text" placeholder="Enter your student ID" />
-            </label>
-            <button type="button" class="primary-button">Find available computers</button>
-          </form>
+      <section class="page-hero">
+        <div>
+          <nav class="breadcrumb hero-breadcrumb" aria-label="Breadcrumb">
+            <a href="/index.html">Home</a>
+            <span>Student IT Hub</span>
+            <span>Study room booking</span>
+          </nav>
+          <p class="eyebrow eyebrow-light">University of Auckland Libraries and Learning Services</p>
+          <h1>Study room booking</h1>
+          <p>
+            Reserve computers in City Campus study spaces and check live workstation availability before you arrive.
+          </p>
         </div>
-
-        <aside class="availability-panel">
-          <div>
-            <p class="eyebrow">Available now</p>
-            <strong>17</strong>
-            <span>bookable computers across City Campus</span>
-          </div>
-          <a class="secondary-link" href="/status.html">View every computer</a>
+        <aside class="hero-service-card">
+          <span>Available now</span>
+          <strong>17</strong>
+          <small>bookable computers across City Campus</small>
+          <a href="/status.html">Open live computer status</a>
         </aside>
       </section>
 
-      <section class="quick-status" aria-labelledby="quick-status-title">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">Campus overview</p>
-            <h2 id="quick-status-title">Current study space availability</h2>
-          </div>
-          <a href="/status.html">Open live status</a>
+      <div class="page-layout">
+        <aside class="side-nav" aria-label="Student IT Hub navigation">
+          <strong>Student IT Hub</strong>
+          <a class="active" href="/index.html">Book a study computer</a>
+          <a href="/status.html">Live computer status</a>
+          <a href="/status.html#boardTitle">Study space locations</a>
+          <a href="/status.html#guidanceTitle">Booking guidance</a>
+        </aside>
+
+        <div class="page-content">
+          <section class="booking-workspace">
+            <div class="booking-panel">
+              <p class="eyebrow">Computer booking</p>
+              <h2>Reserve a study room computer</h2>
+              <form class="booking-form">
+                <label>
+                  <span>Location</span>
+                  <select>
+                    <option>Kate Edger Information Commons</option>
+                    <option>General Library</option>
+                    <option>Owen G Glenn Building</option>
+                    <option>Engineering Building 405</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Date</span>
+                  <input type="date" value="2026-05-11" />
+                </label>
+                <label>
+                  <span>Start time</span>
+                  <select>
+                    <option>1:00 PM</option>
+                    <option>1:30 PM</option>
+                    <option>2:00 PM</option>
+                    <option>2:30 PM</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Duration</span>
+                  <select>
+                    <option>1 hour</option>
+                    <option>2 hours</option>
+                    <option>3 hours</option>
+                  </select>
+                </label>
+                <label class="form-wide">
+                  <span>Student ID</span>
+                  <input type="text" placeholder="Enter your student ID" />
+                </label>
+                <button type="button" class="primary-button">Find available computers</button>
+              </form>
+            </div>
+          </section>
+
+          <section class="quick-status" aria-labelledby="quick-status-title">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Campus overview</p>
+                <h2 id="quick-status-title">Current study space availability</h2>
+              </div>
+              <a href="/status.html">Open live status</a>
+            </div>
+            <div class="overview-grid">
+              <article>
+                <span>Kate Edger Information Commons</span>
+                <strong>9 available</strong>
+                <small>Levels 0, 2, and 3</small>
+              </article>
+              <article>
+                <span>General Library</span>
+                <strong>4 available</strong>
+                <small>Levels 1 and 2</small>
+              </article>
+              <article>
+                <span>Owen G Glenn Building</span>
+                <strong>2 available</strong>
+                <small>Business study area</small>
+              </article>
+              <article>
+                <span>Engineering Building 405</span>
+                <strong>2 available</strong>
+                <small>Project workstations</small>
+              </article>
+            </div>
+          </section>
         </div>
-        <div class="overview-grid">
-          <article>
-            <span>Kate Edger Information Commons</span>
-            <strong>9 available</strong>
-            <small>Levels 0, 2, and 3</small>
-          </article>
-          <article>
-            <span>General Library</span>
-            <strong>4 available</strong>
-            <small>Levels 1 and 2</small>
-          </article>
-          <article>
-            <span>Owen G Glenn Building</span>
-            <strong>2 available</strong>
-            <small>Business study area</small>
-          </article>
-          <article>
-            <span>Engineering Building 405</span>
-            <strong>2 available</strong>
-            <small>Project workstations</small>
-          </article>
-        </div>
-      </section>
+      </div>
     </main>
 
     <script type="module" src="/src/main.js"></script>
