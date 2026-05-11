@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Study Room Booking System | University of Auckland</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="service-strip">
+        <span>Student IT Hub</span>
+        <span id="currentDate">City Campus</span>
+      </div>
+      <div class="header-inner">
+        <a class="brand-lockup" href="/index.html" aria-label="University of Auckland study room booking system">
+          <span class="brand-shield">UoA</span>
+          <span>
+            <strong>University of Auckland</strong>
+            <small>Study Room Booking System</small>
+          </span>
+        </a>
+        <nav class="main-nav" aria-label="Primary navigation">
+          <a class="active" href="/index.html">Booking</a>
+          <a href="/status.html">Live computer status</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="booking-workspace">
+        <div class="booking-panel">
+          <p class="eyebrow">Computer booking</p>
+          <h1>Reserve a study room computer</h1>
+          <form class="booking-form">
+            <label>
+              <span>Location</span>
+              <select>
+                <option>Kate Edger Information Commons</option>
+                <option>General Library</option>
+                <option>Owen G Glenn Building</option>
+                <option>Engineering Building 405</option>
+              </select>
+            </label>
+            <label>
+              <span>Date</span>
+              <input type="date" value="2026-05-11" />
+            </label>
+            <label>
+              <span>Start time</span>
+              <select>
+                <option>1:00 PM</option>
+                <option>1:30 PM</option>
+                <option>2:00 PM</option>
+                <option>2:30 PM</option>
+              </select>
+            </label>
+            <label>
+              <span>Duration</span>
+              <select>
+                <option>1 hour</option>
+                <option>2 hours</option>
+                <option>3 hours</option>
+              </select>
+            </label>
+            <label class="form-wide">
+              <span>Student ID</span>
+              <input type="text" placeholder="Enter your student ID" />
+            </label>
+            <button type="button" class="primary-button">Find available computers</button>
+          </form>
+        </div>
+
+        <aside class="availability-panel">
+          <div>
+            <p class="eyebrow">Available now</p>
+            <strong>17</strong>
+            <span>bookable computers across City Campus</span>
+          </div>
+          <a class="secondary-link" href="/status.html">View every computer</a>
+        </aside>
+      </section>
+
+      <section class="quick-status" aria-labelledby="quick-status-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Campus overview</p>
+            <h2 id="quick-status-title">Current study space availability</h2>
+          </div>
+          <a href="/status.html">Open live status</a>
+        </div>
+        <div class="overview-grid">
+          <article>
+            <span>Kate Edger Information Commons</span>
+            <strong>9 available</strong>
+            <small>Levels 0, 2, and 3</small>
+          </article>
+          <article>
+            <span>General Library</span>
+            <strong>4 available</strong>
+            <small>Levels 1 and 2</small>
+          </article>
+          <article>
+            <span>Owen G Glenn Building</span>
+            <strong>2 available</strong>
+            <small>Business study area</small>
+          </article>
+          <article>
+            <span>Engineering Building 405</span>
+            <strong>2 available</strong>
+            <small>Project workstations</small>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
