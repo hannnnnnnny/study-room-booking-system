@@ -58,6 +58,84 @@
         <button class="secondary-button" type="button" @click="clearReservation">Cancel reservation</button>
       </section>
 
+      <section class="interaction-panel" aria-label="Interactive controls">
+        <div class="quick-filter-panel">
+          <div>
+            <p class="eyebrow">Quick actions</p>
+            <h2>Find a computer faster</h2>
+          </div>
+          <div class="quick-actions" aria-label="Quick status filters">
+            <button
+              v-for="filter in quickStatusFilters"
+              :key="filter.value"
+              type="button"
+              class="filter-chip"
+              :class="{ active: selectedStatus === filter.value }"
+              @click="setStatusFilter(filter.value)"
+            >
+              {{ filter.label }}
+            </button>
+          </div>
+          <div class="utility-actions">
+            <button class="secondary-button" type="button" @click="findNextAvailable">Find next available</button>
+            <button class="secondary-button" type="button" @click="clearFilters">Clear filters</button>
+          </div>
+        </div>
+
+        <aside class="machine-detail-panel" aria-live="polite">
+          <template v-if="selectedMachine">
+            <div class="machine-detail-heading">
+              <div>
+                <p class="eyebrow">Selected computer</p>
+                <h2>{{ selectedMachine.id }}</h2>
+              </div>
+              <span class="detail-status" :class="machineClass(selectedMachine)">
+                {{ machineStatusLabel(selectedMachine) }}
+              </span>
+            </div>
+            <dl class="detail-list">
+              <div>
+                <dt>Location</dt>
+                <dd>{{ selectedMachine.location }}</dd>
+              </div>
+              <div>
+                <dt>Room</dt>
+                <dd>{{ selectedMachine.level }} / {{ selectedMachine.area }}</dd>
+              </div>
+              <div>
+                <dt>Type</dt>
+                <dd>{{ selectedMachine.type }}</dd>
+              </div>
+              <div>
+                <dt>Status note</dt>
+                <dd>{{ selectedMachine.reason }}</dd>
+              </div>
+            </dl>
+            <button
+              v-if="isAvailable(selectedMachine)"
+              class="primary-button detail-action"
+              type="button"
+              @click="reserveMachine(selectedMachine)"
+            >
+              Reserve this computer
+            </button>
+            <button
+              v-else-if="reservation?.id === selectedMachine.id"
+              class="secondary-button detail-action"
+              type="button"
+              @click="clearReservation"
+            >
+              Cancel this reservation
+            </button>
+          </template>
+          <template v-else>
+            <p class="eyebrow">Selected computer</p>
+            <h2>No computer selected</h2>
+            <p>Click any workstation on the visual map to view its details.</p>
+          </template>
+        </aside>
+      </section>
+
       <section class="status-toolbar" aria-label="Computer filters">
         <label>
           <span>Search</span>
@@ -83,6 +161,7 @@
             <option value="all">All statuses</option>
             <option value="available">Available</option>
             <option value="unavailable">Unavailable</option>
+            <option value="service">Service issue</option>
           </select>
         </label>
       </section>
@@ -120,11 +199,11 @@
                   :key="machine.id"
                   type="button"
                   class="computer-desk"
-                  :class="machineClass(machine)"
-                  :disabled="!isAvailable(machine)"
+                  :class="[machineClass(machine), { selected: selectedMachine?.id === machine.id }]"
+                  :data-machine-id="machine.id"
                   :aria-label="computerLabel(machine)"
                   :title="computerLabel(machine)"
-                  @click="reserveMachine(machine)"
+                  @click="handleComputerClick(machine)"
                 >
                   <span class="monitor-shape" aria-hidden="true">
                     <span class="monitor-screen">PC</span>
@@ -136,16 +215,18 @@
             </div>
 
             <div class="room-machine-list">
-              <article
+              <button
                 v-for="machine in group.machines"
                 :key="`${machine.id}-detail`"
+                type="button"
                 class="mini-machine-card"
-                :class="machineClass(machine)"
+                :class="[machineClass(machine), { selected: selectedMachine?.id === machine.id }]"
+                @click="selectMachine(machine)"
               >
                 <strong>{{ machine.id }}</strong>
                 <span>{{ machineStatusLabel(machine) }}</span>
                 <small>{{ machine.reason }}</small>
-              </article>
+              </button>
             </div>
           </section>
         </div>
@@ -168,6 +249,22 @@
           <li>Use the filters to find a computer by room, level, workstation type, or status.</li>
         </ul>
       </section>
+
+      <section class="activity-panel" aria-labelledby="activityTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Recent activity</p>
+            <h2 id="activityTitle">Session log</h2>
+          </div>
+          <button class="secondary-button compact-button" type="button" @click="clearActivity">Clear log</button>
+        </div>
+        <ol>
+          <li v-for="item in activityLog" :key="item.id">
+            <time>{{ item.time }}</time>
+            <span>{{ item.text }}</span>
+          </li>
+        </ol>
+      </section>
     </div>
   </div>
 
@@ -175,7 +272,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 
 const initialMachines = [
   { id: 'CSC-L0-01', location: 'Central Study Commons', level: 'Level 0', area: 'Lower commons', zone: 'North row', type: 'Standard PC', status: 'available', reason: 'Ready now' },
@@ -218,9 +315,19 @@ const selectedLevel = ref('all')
 const selectedStatus = ref('all')
 const liveUpdatedAt = ref(new Date())
 const reservation = ref(null)
+const selectedMachine = ref(null)
 const toastMessage = ref('')
+const activityLog = ref([])
 let clockTimer
 let toastTimer
+let activityId = 0
+
+const quickStatusFilters = [
+  { label: 'All', value: 'all' },
+  { label: 'Available', value: 'available' },
+  { label: 'Unavailable', value: 'unavailable' },
+  { label: 'Service issue', value: 'service' }
+]
 
 const liveUpdatedLabel = computed(() => formatTime(liveUpdatedAt.value))
 
@@ -241,7 +348,8 @@ const filteredMachines = computed(() => {
     const matchesStatus =
       selectedStatus.value === 'all' ||
       (selectedStatus.value === 'available' && isAvailable(machine)) ||
-      (selectedStatus.value === 'unavailable' && !isAvailable(machine))
+      (selectedStatus.value === 'unavailable' && !isAvailable(machine)) ||
+      (selectedStatus.value === 'service' && isServiceIssue(machine))
 
     return matchesSearch && matchesLocation && matchesLevel && matchesStatus
   })
@@ -280,6 +388,7 @@ const stats = computed(() => {
 
 onMounted(() => {
   updateHeaderClock()
+  addActivity('Status board opened.')
   clockTimer = window.setInterval(() => {
     liveUpdatedAt.value = new Date()
     updateHeaderClock()
@@ -298,14 +407,32 @@ function reserveMachine(machine) {
 
   if (reservation.value) {
     showToast(`You already reserved ${reservation.value.id}. Cancel it before choosing another device.`)
+    addActivity(`Reservation blocked: ${reservation.value.id} is already held.`)
     return
   }
 
   machine.status = 'reserved'
   machine.reason = 'Reserved for your next session'
   reservation.value = { ...machine }
+  selectedMachine.value = machine
   liveUpdatedAt.value = new Date()
+  addActivity(`${machine.id} reserved.`)
   showToast(`${machine.id} has been reserved.`)
+}
+
+function handleComputerClick(machine) {
+  selectedMachine.value = machine
+  if (isAvailable(machine)) {
+    reserveMachine(machine)
+    return
+  }
+  showToast(`${machine.id} is ${machineStatusLabel(machine).toLowerCase()}: ${machine.reason}`)
+  addActivity(`${machine.id} selected for review.`)
+}
+
+function selectMachine(machine) {
+  selectedMachine.value = machine
+  addActivity(`${machine.id} selected from details list.`)
 }
 
 function clearReservation() {
@@ -317,8 +444,10 @@ function clearReservation() {
   if (machine) {
     machine.status = 'available'
     machine.reason = 'Ready now'
+    selectedMachine.value = machine
   }
 
+  addActivity(`${reservation.value.id} reservation cancelled.`)
   showToast(`${reservation.value.id} reservation was cancelled.`)
   reservation.value = null
   liveUpdatedAt.value = new Date()
@@ -326,7 +455,50 @@ function clearReservation() {
 
 function refreshStatus() {
   liveUpdatedAt.value = new Date()
+  addActivity('Status refreshed.')
   showToast('Computer status has been refreshed.')
+}
+
+function setStatusFilter(status) {
+  selectedStatus.value = status
+  addActivity(`Status filter changed to ${quickStatusFilters.find((filter) => filter.value === status)?.label || status}.`)
+}
+
+function clearFilters() {
+  search.value = ''
+  selectedLocation.value = 'all'
+  selectedLevel.value = 'all'
+  selectedStatus.value = 'all'
+  addActivity('Filters cleared.')
+}
+
+async function findNextAvailable() {
+  let machine = filteredMachines.value.find(isAvailable)
+  if (!machine) {
+    search.value = ''
+    selectedLocation.value = 'all'
+    selectedLevel.value = 'all'
+    selectedStatus.value = 'available'
+    await nextTick()
+    machine = filteredMachines.value.find(isAvailable)
+  }
+
+  if (!machine) {
+    showToast('No available computers found.')
+    addActivity('No available computers found.')
+    return
+  }
+
+  selectedMachine.value = machine
+  showToast(`${machine.id} is available.`)
+  addActivity(`${machine.id} highlighted as the next available computer.`)
+  await nextTick()
+  document.querySelector(`[data-machine-id="${machine.id}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+}
+
+function clearActivity() {
+  activityLog.value = []
+  addActivity('Activity log cleared.')
 }
 
 function showToast(message) {
@@ -335,6 +507,13 @@ function showToast(message) {
   toastTimer = window.setTimeout(() => {
     toastMessage.value = ''
   }, 3200)
+}
+
+function addActivity(text) {
+  activityLog.value = [
+    { id: activityId++, text, time: formatTime(new Date()) },
+    ...activityLog.value
+  ].slice(0, 6)
 }
 
 function isAvailable(machine) {

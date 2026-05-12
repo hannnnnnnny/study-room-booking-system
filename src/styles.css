@@ -588,6 +588,138 @@ select:focus {
   color: var(--muted);
 }
 
+.interaction-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.quick-filter-panel,
+.machine-detail-panel,
+.activity-panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+
+.quick-filter-panel {
+  display: grid;
+  gap: 16px;
+  padding: 18px 20px;
+  border-top: 5px solid var(--blue-3);
+}
+
+.quick-filter-panel h2,
+.machine-detail-panel h2 {
+  margin-bottom: 0;
+}
+
+.quick-actions,
+.utility-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-chip {
+  min-height: 38px;
+  border: 1px solid #abc1d7;
+  border-radius: 999px;
+  padding: 8px 14px;
+  color: var(--navy);
+  background: #f7fbff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.filter-chip:hover,
+.filter-chip.active {
+  color: #fff;
+  border-color: var(--navy-2);
+  background: var(--navy-2);
+}
+
+.compact-button {
+  min-height: 36px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.machine-detail-panel {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-height: 100%;
+  padding: 18px;
+  border-top: 5px solid var(--navy);
+}
+
+.machine-detail-panel > p {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.machine-detail-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detail-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  color: #fff;
+  background: #8b98a7;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.detail-status.is-available {
+  background: var(--green);
+}
+
+.detail-status.is-service {
+  color: #4b3500;
+  background: #f4d27a;
+}
+
+.detail-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.detail-list > div {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.detail-list dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.detail-list dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.detail-action {
+  width: 100%;
+}
+
 .legend-row {
   display: flex;
   flex-wrap: wrap;
@@ -724,6 +856,19 @@ select:focus {
   transform: translateY(-2px);
 }
 
+.computer-desk.is-unavailable:hover,
+.computer-desk.is-unavailable:focus,
+.computer-desk.is-service:hover,
+.computer-desk.is-service:focus {
+  border-color: var(--navy-2);
+  box-shadow: 0 0 0 4px rgba(0, 94, 184, 0.12);
+}
+
+.computer-desk.selected {
+  outline: 4px solid rgba(0, 114, 206, 0.22);
+  border-color: var(--blue-3);
+}
+
 .computer-desk.is-unavailable {
   color: #52616f;
   background: #eef3f8;
@@ -733,10 +878,6 @@ select:focus {
   color: #4b3500;
   border-color: #e1bd47;
   background: #fff7da;
-}
-
-.computer-desk:disabled {
-  cursor: not-allowed;
 }
 
 .monitor-shape {
@@ -831,6 +972,14 @@ select:focus {
   border-left: 5px solid #8b98a7;
   border-radius: 8px;
   background: #fff;
+  cursor: pointer;
+  text-align: left;
+}
+
+.mini-machine-card:hover,
+.mini-machine-card.selected {
+  border-color: var(--navy-2);
+  box-shadow: 0 0 0 3px rgba(0, 94, 184, 0.12);
 }
 
 .mini-machine-card.is-available {
@@ -868,6 +1017,41 @@ select:focus {
   gap: 10px;
   margin: 0;
   color: var(--muted);
+}
+
+.activity-panel {
+  margin-top: 18px;
+  padding: 20px;
+  border-top: 6px solid var(--blue-3);
+}
+
+.activity-panel ol {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activity-panel li {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #f8fbff;
+}
+
+.activity-panel time {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.activity-panel span {
+  color: var(--ink);
+  font-size: 13px;
 }
 
 .empty-state {
@@ -920,6 +1104,10 @@ select:focus {
   .overview-grid,
   .status-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .interaction-panel {
+    grid-template-columns: 1fr;
   }
 
   .status-toolbar {
@@ -980,12 +1168,23 @@ select:focus {
   .booking-form,
   .overview-grid,
   .status-summary,
-  .status-toolbar {
+  .status-toolbar,
+  .activity-panel li {
     grid-template-columns: 1fr;
   }
 
-  .computer-grid {
-    grid-template-columns: 1fr;
+  .computer-map {
+    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  }
+
+  .visual-room {
+    padding: 54px 12px 12px;
+  }
+
+  .reservation-panel,
+  .machine-detail-heading {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .availability-panel strong {
