@@ -9,8 +9,8 @@
       <p class="eyebrow eyebrow-light">Main Campus</p>
       <h1>Study Room Computer Status</h1>
       <p>
-        Click a green computer to reserve it. Each user can hold one device reservation at a time.
-        Grey workstations are already in use or reserved, and gold workstations need service support.
+        Enter a student ID, choose a time, then click a green computer to reserve it.
+        Each student ID can hold one active device reservation at a time.
       </p>
     </div>
     <div class="refresh-card refresh-card-hero" aria-live="polite">
@@ -51,9 +51,12 @@
 
       <section v-if="reservation" class="reservation-panel" aria-live="polite">
         <div>
-          <p class="eyebrow">Current reservation</p>
-          <h2>{{ reservation.id }}</h2>
-          <p>{{ reservation.location }} / {{ reservation.level }} / {{ reservation.area }}</p>
+          <p class="eyebrow">Current reservation for {{ reservation.studentId }}</p>
+          <h2>{{ reservation.machineId }}</h2>
+          <p>
+            {{ reservation.location }} / {{ reservation.level }} / {{ reservation.area }}.
+            {{ reservation.date }} from {{ reservation.startsAt }} to {{ reservation.endsAtLabel }}.
+          </p>
         </div>
         <button class="secondary-button" type="button" @click="clearReservation">Cancel reservation</button>
       </section>
@@ -61,9 +64,47 @@
       <section class="interaction-panel" aria-label="Interactive controls">
         <div class="quick-filter-panel">
           <div>
-            <p class="eyebrow">Quick actions</p>
-            <h2>Find a computer faster</h2>
+            <p class="eyebrow">Reservation details</p>
+            <h2>Find and reserve a computer</h2>
           </div>
+
+          <div class="reservation-form-grid">
+            <label>
+              <span>Student ID</span>
+              <input
+                v-model="studentId"
+                autocomplete="off"
+                maxlength="20"
+                minlength="4"
+                pattern="[A-Za-z0-9-]{4,20}"
+                placeholder="Enter your student ID"
+                type="text"
+              />
+            </label>
+            <label>
+              <span>Date</span>
+              <input v-model="bookingDate" :min="today" type="date" />
+            </label>
+            <label>
+              <span>Start time</span>
+              <select v-model="startTime">
+                <option v-for="time in startTimes" :key="time" :value="time">{{ time }}</option>
+              </select>
+            </label>
+            <label>
+              <span>Duration</span>
+              <select v-model="duration">
+                <option v-for="option in bookingDurations" :key="option.value" :value="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </label>
+          </div>
+
+          <p class="identity-note">
+            The same student ID cannot reserve a second computer until the current reservation is cancelled.
+          </p>
+
           <div class="quick-actions" aria-label="Quick status filters">
             <button
               v-for="filter in quickStatusFilters"
@@ -115,12 +156,12 @@
               v-if="isAvailable(selectedMachine)"
               class="primary-button detail-action"
               type="button"
-              @click="reserveMachine(selectedMachine)"
+              @click="reserveSelectedMachine"
             >
               Reserve this computer
             </button>
             <button
-              v-else-if="reservation?.id === selectedMachine.id"
+              v-else-if="canCancelSelected"
               class="secondary-button detail-action"
               type="button"
               @click="clearReservation"
@@ -243,10 +284,10 @@
           <h2 id="guidanceTitle">How to reserve</h2>
         </div>
         <ul>
-          <li>Click any green computer icon to reserve it immediately.</li>
-          <li>Each user can reserve only one device at a time.</li>
-          <li>The selected computer changes to reserved and is removed from available count.</li>
-          <li>Use the filters to find a computer by room, level, workstation type, or status.</li>
+          <li>Enter a valid student ID before reserving.</li>
+          <li>Click any green computer icon to reserve it for the selected time.</li>
+          <li>Each student ID can reserve only one device at a time.</li>
+          <li>Use filters to search by room, level, workstation type, or status.</li>
         </ul>
       </section>
 
@@ -272,50 +313,42 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-const initialMachines = [
-  { id: 'CSC-L0-01', location: 'Central Study Commons', level: 'Level 0', area: 'Lower commons', zone: 'North row', type: 'Standard PC', status: 'available', reason: 'Ready now' },
-  { id: 'CSC-L0-02', location: 'Central Study Commons', level: 'Level 0', area: 'Lower commons', zone: 'North row', type: 'Standard PC', status: 'occupied', reason: 'In use until 1:45 PM' },
-  { id: 'CSC-L0-03', location: 'Central Study Commons', level: 'Level 0', area: 'Lower commons', zone: 'North row', type: 'Standard PC', status: 'available', reason: 'Ready now' },
-  { id: 'CSC-L0-04', location: 'Central Study Commons', level: 'Level 0', area: 'Lower commons', zone: 'South row', type: 'Standard PC', status: 'reserved', reason: 'Reserved until 2:00 PM' },
-  { id: 'CSC-L0-05', location: 'Central Study Commons', level: 'Level 0', area: 'Lower commons', zone: 'South row', type: 'Standard PC', status: 'available', reason: 'Ready now' },
-  { id: 'CSC-L0-06', location: 'Central Study Commons', level: 'Level 0', area: 'Lower commons', zone: 'South row', type: 'Standard PC', status: 'offline', reason: 'Network issue' },
-  { id: 'CSC-L2-01', location: 'Central Study Commons', level: 'Level 2', area: 'Silent study room', zone: 'East row', type: 'Dual monitor PC', status: 'available', reason: 'Ready now' },
-  { id: 'CSC-L2-02', location: 'Central Study Commons', level: 'Level 2', area: 'Silent study room', zone: 'East row', type: 'Dual monitor PC', status: 'available', reason: 'Ready now' },
-  { id: 'CSC-L2-03', location: 'Central Study Commons', level: 'Level 2', area: 'Silent study room', zone: 'East row', type: 'Dual monitor PC', status: 'occupied', reason: 'In use until 2:30 PM' },
-  { id: 'CSC-L2-04', location: 'Central Study Commons', level: 'Level 2', area: 'Silent study room', zone: 'West row', type: 'Dual monitor PC', status: 'available', reason: 'Ready now' },
-  { id: 'CSC-L2-05', location: 'Central Study Commons', level: 'Level 2', area: 'Silent study room', zone: 'West row', type: 'Standard PC', status: 'maintenance', reason: 'Service desk check' },
-  { id: 'CSC-L2-06', location: 'Central Study Commons', level: 'Level 2', area: 'Silent study room', zone: 'West row', type: 'Standard PC', status: 'available', reason: 'Ready now' },
-  { id: 'CSC-L3-01', location: 'Central Study Commons', level: 'Level 3', area: 'Quiet study room', zone: 'Window row', type: 'Standard PC', status: 'available', reason: 'Ready now' },
-  { id: 'CSC-L3-02', location: 'Central Study Commons', level: 'Level 3', area: 'Quiet study room', zone: 'Window row', type: 'Standard PC', status: 'occupied', reason: 'In use until 4:00 PM' },
-  { id: 'CSC-L3-03', location: 'Central Study Commons', level: 'Level 3', area: 'Quiet study room', zone: 'Central row', type: 'Standard PC', status: 'available', reason: 'Ready now' },
-  { id: 'CSC-L3-04', location: 'Central Study Commons', level: 'Level 3', area: 'Quiet study room', zone: 'Central row', type: 'Standard PC', status: 'available', reason: 'Ready now' },
-  { id: 'ML-L1-01', location: 'Main Library', level: 'Level 1', area: 'Learning commons', zone: 'Individual study', type: 'Standard PC', status: 'occupied', reason: 'In use until 1:30 PM' },
-  { id: 'ML-L1-02', location: 'Main Library', level: 'Level 1', area: 'Learning commons', zone: 'Individual study', type: 'Standard PC', status: 'available', reason: 'Ready now' },
-  { id: 'ML-L1-03', location: 'Main Library', level: 'Level 1', area: 'Learning commons', zone: 'Individual study', type: 'Standard PC', status: 'available', reason: 'Ready now' },
-  { id: 'ML-L1-04', location: 'Main Library', level: 'Level 1', area: 'Learning commons', zone: 'Individual study', type: 'Standard PC', status: 'offline', reason: 'Network issue' },
-  { id: 'ML-L2-01', location: 'Main Library', level: 'Level 2', area: 'South study room', zone: 'Postgraduate study', type: 'Dual monitor PC', status: 'available', reason: 'Ready now' },
-  { id: 'ML-L2-02', location: 'Main Library', level: 'Level 2', area: 'South study room', zone: 'Postgraduate study', type: 'Dual monitor PC', status: 'reserved', reason: 'Reserved until 2:15 PM' },
-  { id: 'ML-L2-03', location: 'Main Library', level: 'Level 2', area: 'South study room', zone: 'Postgraduate study', type: 'Standard PC', status: 'available', reason: 'Ready now' },
-  { id: 'ML-L2-04', location: 'Main Library', level: 'Level 2', area: 'South study room', zone: 'Postgraduate study', type: 'Standard PC', status: 'available', reason: 'Ready now' },
-  { id: 'BLC-L2-01', location: 'Business Learning Centre', level: 'Level 2', area: 'Computer lab 240A', zone: 'Business study', type: 'Finance workstation', status: 'occupied', reason: 'In use until 3:15 PM' },
-  { id: 'BLC-L2-02', location: 'Business Learning Centre', level: 'Level 2', area: 'Computer lab 240A', zone: 'Business study', type: 'Finance workstation', status: 'available', reason: 'Ready now' },
-  { id: 'BLC-L2-03', location: 'Business Learning Centre', level: 'Level 2', area: 'Computer lab 240A', zone: 'Business study', type: 'Finance workstation', status: 'available', reason: 'Ready now' },
-  { id: 'ESL-L3-01', location: 'Engineering Study Lab', level: 'Level 3', area: 'Collaboration room', zone: 'Project work', type: 'CAD workstation', status: 'available', reason: 'Ready now' },
-  { id: 'ESL-L3-02', location: 'Engineering Study Lab', level: 'Level 3', area: 'Collaboration room', zone: 'Project work', type: 'CAD workstation', status: 'maintenance', reason: 'Software update' },
-  { id: 'ESL-L3-03', location: 'Engineering Study Lab', level: 'Level 3', area: 'Collaboration room', zone: 'Project work', type: 'CAD workstation', status: 'available', reason: 'Ready now' },
-  { id: 'ESL-L3-04', location: 'Engineering Study Lab', level: 'Level 3', area: 'Collaboration room', zone: 'Project work', type: 'CAD workstation', status: 'occupied', reason: 'In use until 5:00 PM' }
-]
+import {
+  bookingDurations,
+  cancelStudentReservation,
+  computerLabel,
+  createReservation,
+  filterMachines,
+  getStudentReservation,
+  getTodayDateInput,
+  groupMachines,
+  hydrateMachines,
+  isAvailable,
+  machineClass,
+  machineStatusLabel,
+  normalizeStudentId,
+  startTimes,
+  summarizeMachines,
+  uniqueSorted
+} from './bookingData.js'
+import { readReservations, writeReservations } from './bookingStore.js'
 
-const machines = ref(initialMachines.map((machine) => ({ ...machine })))
+const LAST_STUDENT_ID_KEY = 'study-room-booking.lastStudentId'
+
+const reservations = ref(readReservations())
+const studentId = ref(window.localStorage.getItem(LAST_STUDENT_ID_KEY) || '')
+const today = getTodayDateInput()
+const bookingDate = ref(today)
+const startTime = ref(startTimes[0])
+const duration = ref(bookingDurations[0].value)
 const search = ref('')
 const selectedLocation = ref('all')
 const selectedLevel = ref('all')
 const selectedStatus = ref('all')
 const liveUpdatedAt = ref(new Date())
-const reservation = ref(null)
-const selectedMachine = ref(null)
+const selectedMachineId = ref('')
 const toastMessage = ref('')
 const activityLog = ref([])
 let clockTimer
@@ -329,61 +362,28 @@ const quickStatusFilters = [
   { label: 'Service issue', value: 'service' }
 ]
 
+const machines = computed(() => hydrateMachines(reservations.value))
 const liveUpdatedLabel = computed(() => formatTime(liveUpdatedAt.value))
-
+const reservation = computed(() => getStudentReservation(reservations.value, studentId.value))
+const selectedMachine = computed(() => machines.value.find((machine) => machine.id === selectedMachineId.value) || null)
+const canCancelSelected = computed(
+  () => selectedMachine.value?.reservedBy && selectedMachine.value.reservedBy === normalizeStudentId(studentId.value)
+)
 const locationOptions = computed(() => uniqueSorted(machines.value.map((machine) => machine.location)))
 const levelOptions = computed(() => uniqueSorted(machines.value.map((machine) => machine.level)))
-
-const filteredMachines = computed(() => {
-  const text = search.value.trim().toLowerCase()
-  return machines.value.filter((machine) => {
-    const matchesSearch =
-      !text ||
-      [machine.id, machine.location, machine.level, machine.area, machine.zone, machine.type]
-        .join(' ')
-        .toLowerCase()
-        .includes(text)
-    const matchesLocation = selectedLocation.value === 'all' || machine.location === selectedLocation.value
-    const matchesLevel = selectedLevel.value === 'all' || machine.level === selectedLevel.value
-    const matchesStatus =
-      selectedStatus.value === 'all' ||
-      (selectedStatus.value === 'available' && isAvailable(machine)) ||
-      (selectedStatus.value === 'unavailable' && !isAvailable(machine)) ||
-      (selectedStatus.value === 'service' && isServiceIssue(machine))
-
-    return matchesSearch && matchesLocation && matchesLevel && matchesStatus
+const filteredMachines = computed(() =>
+  filterMachines(machines.value, {
+    level: selectedLevel.value,
+    location: selectedLocation.value,
+    search: search.value,
+    status: selectedStatus.value
   })
-})
+)
+const groupedMachines = computed(() => groupMachines(filteredMachines.value))
+const stats = computed(() => summarizeMachines(machines.value))
 
-const groupedMachines = computed(() => {
-  const groups = new Map()
-  filteredMachines.value.forEach((machine) => {
-    const key = `${machine.location}|${machine.level}|${machine.area}`
-    if (!groups.has(key)) {
-      groups.set(key, {
-        area: machine.area,
-        key,
-        level: machine.level,
-        location: machine.location,
-        machines: []
-      })
-    }
-    groups.get(key).machines.push(machine)
-  })
-
-  return Array.from(groups.values()).map((group) => ({
-    ...group,
-    available: group.machines.filter(isAvailable).length
-  }))
-})
-
-const stats = computed(() => {
-  const total = machines.value.length
-  const available = machines.value.filter(isAvailable).length
-  const unavailable = total - available
-  const utilisation = total ? Math.round((unavailable / total) * 100) : 0
-
-  return { total, available, unavailable, utilisation }
+watch(studentId, (value) => {
+  window.localStorage.setItem(LAST_STUDENT_ID_KEY, normalizeStudentId(value))
 })
 
 onMounted(() => {
@@ -393,35 +393,50 @@ onMounted(() => {
     liveUpdatedAt.value = new Date()
     updateHeaderClock()
   }, 1000)
+  window.addEventListener('storage', syncReservations)
 })
 
 onBeforeUnmount(() => {
   window.clearInterval(clockTimer)
   window.clearTimeout(toastTimer)
+  window.removeEventListener('storage', syncReservations)
 })
+
+function reserveSelectedMachine() {
+  if (!selectedMachine.value) {
+    return
+  }
+  reserveMachine(selectedMachine.value)
+}
 
 function reserveMachine(machine) {
   if (!isAvailable(machine)) {
     return
   }
 
-  if (reservation.value) {
-    showToast(`You already reserved ${reservation.value.id}. Cancel it before choosing another device.`)
-    addActivity(`Reservation blocked: ${reservation.value.id} is already held.`)
+  const result = createReservation(reservations.value, machine.id, {
+    date: bookingDate.value,
+    duration: duration.value,
+    startTime: startTime.value,
+    studentId: studentId.value
+  })
+
+  if (!result.ok) {
+    showToast(result.error)
+    addActivity(`Reservation blocked for ${machine.id}.`)
     return
   }
 
-  machine.status = 'reserved'
-  machine.reason = 'Reserved for your next session'
-  reservation.value = { ...machine }
-  selectedMachine.value = machine
+  reservations.value = result.reservations
+  writeReservations(reservations.value)
+  selectedMachineId.value = machine.id
   liveUpdatedAt.value = new Date()
-  addActivity(`${machine.id} reserved.`)
-  showToast(`${machine.id} has been reserved.`)
+  addActivity(`${machine.id} reserved for ${result.reservation.studentId}.`)
+  showToast(`${machine.id} reserved until ${result.reservation.endsAtLabel}.`)
 }
 
 function handleComputerClick(machine) {
-  selectedMachine.value = machine
+  selectedMachineId.value = machine.id
   if (isAvailable(machine)) {
     reserveMachine(machine)
     return
@@ -431,29 +446,27 @@ function handleComputerClick(machine) {
 }
 
 function selectMachine(machine) {
-  selectedMachine.value = machine
+  selectedMachineId.value = machine.id
   addActivity(`${machine.id} selected from details list.`)
 }
 
 function clearReservation() {
-  if (!reservation.value) {
+  const result = cancelStudentReservation(reservations.value, studentId.value)
+  if (!result.ok) {
+    showToast(result.error)
     return
   }
 
-  const machine = machines.value.find((item) => item.id === reservation.value.id)
-  if (machine) {
-    machine.status = 'available'
-    machine.reason = 'Ready now'
-    selectedMachine.value = machine
-  }
-
-  addActivity(`${reservation.value.id} reservation cancelled.`)
-  showToast(`${reservation.value.id} reservation was cancelled.`)
-  reservation.value = null
+  reservations.value = result.reservations
+  writeReservations(reservations.value)
+  selectedMachineId.value = result.reservation.machineId
+  addActivity(`${result.reservation.machineId} reservation cancelled.`)
+  showToast(`${result.reservation.machineId} reservation was cancelled.`)
   liveUpdatedAt.value = new Date()
 }
 
 function refreshStatus() {
+  reservations.value = readReservations()
   liveUpdatedAt.value = new Date()
   addActivity('Status refreshed.')
   showToast('Computer status has been refreshed.')
@@ -489,7 +502,7 @@ async function findNextAvailable() {
     return
   }
 
-  selectedMachine.value = machine
+  selectedMachineId.value = machine.id
   showToast(`${machine.id} is available.`)
   addActivity(`${machine.id} highlighted as the next available computer.`)
   await nextTick()
@@ -498,7 +511,7 @@ async function findNextAvailable() {
 
 function clearActivity() {
   activityLog.value = []
-  addActivity('Activity log cleared.')
+  showToast('Activity log cleared.')
 }
 
 function showToast(message) {
@@ -516,36 +529,9 @@ function addActivity(text) {
   ].slice(0, 6)
 }
 
-function isAvailable(machine) {
-  return machine.status === 'available'
-}
-
-function isServiceIssue(machine) {
-  return machine.status === 'maintenance' || machine.status === 'offline'
-}
-
-function machineStatusLabel(machine) {
-  if (isAvailable(machine)) {
-    return 'Available'
-  }
-  if (isServiceIssue(machine)) {
-    return 'Service issue'
-  }
-  return 'Unavailable'
-}
-
-function machineClass(machine) {
-  if (isAvailable(machine)) {
-    return 'is-available'
-  }
-  if (isServiceIssue(machine)) {
-    return 'is-service'
-  }
-  return 'is-unavailable'
-}
-
-function computerLabel(machine) {
-  return `${machine.id}, ${machineStatusLabel(machine)}, ${machine.type}, ${machine.reason}`
+function syncReservations() {
+  reservations.value = readReservations()
+  liveUpdatedAt.value = new Date()
 }
 
 function formatTime(date) {
@@ -563,9 +549,5 @@ function updateHeaderClock() {
   if (statusClock) {
     statusClock.textContent = formatTime(new Date())
   }
-}
-
-function uniqueSorted(values) {
-  return Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b, 'en-NZ'))
 }
 </script>

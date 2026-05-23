@@ -225,6 +225,12 @@ label span {
   font-size: 13px;
 }
 
+.field-hint {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
 input,
 select {
   width: 100%;
@@ -245,6 +251,122 @@ select:focus {
 
 .form-wide {
   grid-column: 1 / -1;
+}
+
+.booking-message {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border: 1px solid #b9d0e6;
+  border-radius: 8px;
+  color: var(--navy);
+  background: #f1f8ff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.booking-message[data-type="success"] {
+  color: var(--green);
+  border-color: #8fcda6;
+  background: #f1faf4;
+}
+
+.booking-message[data-type="error"] {
+  color: var(--red);
+  border-color: #e5ada9;
+  background: var(--red-bg);
+}
+
+.booking-results,
+.current-booking-card {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #f8fbff;
+}
+
+.compact-heading {
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.booking-result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+.booking-result-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #b9d8c3;
+  border-left: 5px solid var(--green);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.booking-result-card strong,
+.booking-result-card span {
+  display: block;
+}
+
+.booking-result-card span,
+.booking-result-card p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.reserve-result-button {
+  min-height: 38px;
+  border: 0;
+  border-radius: 4px;
+  color: #fff;
+  background: var(--green);
+  font-weight: 900;
+}
+
+.reserve-result-button:hover {
+  transform: translateY(-1px);
+}
+
+.reserve-result-button:disabled {
+  color: #5e7284;
+  background: #dce6ef;
+  cursor: not-allowed;
+}
+
+.reserve-result-button:disabled:hover {
+  transform: none;
+}
+
+.current-booking-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-color: #91caa5;
+  border-left: 6px solid var(--green);
+  background: #f4fbf6;
+}
+
+.current-booking-card h3 {
+  color: var(--green);
+}
+
+.current-booking-card p {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.empty-inline {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
 .primary-button,
@@ -609,6 +731,19 @@ select:focus {
   gap: 16px;
   padding: 18px 20px;
   border-top: 5px solid var(--blue-3);
+}
+
+.reservation-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.identity-note {
+  margin: -4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 .quick-filter-panel h2,
@@ -1166,7 +1301,9 @@ select:focus {
   }
 
   .booking-form,
+  .booking-result-grid,
   .overview-grid,
+  .reservation-form-grid,
   .status-summary,
   .status-toolbar,
   .activity-panel li {
@@ -1182,6 +1319,7 @@ select:focus {
   }
 
   .reservation-panel,
+  .current-booking-card,
   .machine-detail-heading {
     align-items: stretch;
     flex-direction: column;

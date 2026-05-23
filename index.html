@@ -43,7 +43,7 @@
         </div>
         <aside class="hero-service-card">
           <span>Available now</span>
-          <strong>17</strong>
+          <strong id="availableNowCount">19</strong>
           <small>bookable computers across campus</small>
           <a href="./status.html">Open live computer status</a>
         </aside>
@@ -63,43 +63,81 @@
             <div class="booking-panel">
               <p class="eyebrow">Computer booking</p>
               <h2>Reserve a study room computer</h2>
-              <form class="booking-form">
+              <p>
+                Search by location, date, time, and student ID. Each student can hold one active computer reservation.
+              </p>
+              <form id="bookingForm" class="booking-form">
                 <label>
                   <span>Location</span>
-                  <select>
-                    <option>Central Study Commons</option>
-                    <option>Main Library</option>
-                    <option>Business Learning Centre</option>
-                    <option>Engineering Study Lab</option>
+                  <select id="locationSelect" required>
+                    <option value="Central Study Commons">Central Study Commons</option>
+                    <option value="Main Library">Main Library</option>
+                    <option value="Business Learning Centre">Business Learning Centre</option>
+                    <option value="Engineering Study Lab">Engineering Study Lab</option>
                   </select>
                 </label>
                 <label>
                   <span>Date</span>
-                  <input type="date" value="2026-05-11" />
+                  <input id="bookingDate" type="date" required />
                 </label>
                 <label>
                   <span>Start time</span>
-                  <select>
-                    <option>1:00 PM</option>
-                    <option>1:30 PM</option>
-                    <option>2:00 PM</option>
-                    <option>2:30 PM</option>
+                  <select id="startTimeSelect" required>
+                    <option value="1:00 PM">1:00 PM</option>
+                    <option value="1:30 PM">1:30 PM</option>
+                    <option value="2:00 PM">2:00 PM</option>
+                    <option value="2:30 PM">2:30 PM</option>
+                    <option value="3:00 PM">3:00 PM</option>
+                    <option value="3:30 PM">3:30 PM</option>
+                    <option value="4:00 PM">4:00 PM</option>
                   </select>
                 </label>
                 <label>
                   <span>Duration</span>
-                  <select>
-                    <option>1 hour</option>
-                    <option>2 hours</option>
-                    <option>3 hours</option>
+                  <select id="durationSelect" required>
+                    <option value="60">1 hour</option>
+                    <option value="120">2 hours</option>
+                    <option value="180">3 hours</option>
                   </select>
                 </label>
                 <label class="form-wide">
                   <span>Student ID</span>
-                  <input type="text" placeholder="Enter your student ID" />
+                  <input
+                    id="studentIdInput"
+                    type="text"
+                    autocomplete="off"
+                    maxlength="20"
+                    minlength="4"
+                    pattern="[A-Za-z0-9-]{4,20}"
+                    placeholder="Enter your student ID"
+                    required
+                  />
+                  <small class="field-hint">Use 4-20 letters, numbers, or hyphens.</small>
                 </label>
-                <button type="button" class="primary-button">Find available computers</button>
+                <button type="submit" class="primary-button">Find available computers</button>
               </form>
+
+              <div id="bookingMessage" class="booking-message" hidden aria-live="polite"></div>
+
+              <section id="bookingResults" class="booking-results" aria-live="polite" hidden>
+                <div class="section-heading compact-heading">
+                  <div>
+                    <p class="eyebrow">Available options</p>
+                    <h3 id="bookingResultsTitle">Computers found</h3>
+                  </div>
+                  <a href="./status.html">Open full map</a>
+                </div>
+                <div id="bookingResultGrid" class="booking-result-grid"></div>
+              </section>
+
+              <section id="currentBookingCard" class="current-booking-card" hidden aria-live="polite">
+                <div>
+                  <p class="eyebrow">Current reservation</p>
+                  <h3 id="currentBookingTitle">No reservation</h3>
+                  <p id="currentBookingMeta"></p>
+                </div>
+                <button id="cancelCurrentBooking" class="secondary-button" type="button">Cancel reservation</button>
+              </section>
             </div>
           </section>
 
@@ -112,22 +150,22 @@
               <a href="./status.html">Open live status</a>
             </div>
             <div class="overview-grid">
-              <article>
+              <article data-location-card="Central Study Commons">
                 <span>Central Study Commons</span>
-                <strong>9 available</strong>
+                <strong>10 available</strong>
                 <small>Levels 0, 2, and 3</small>
               </article>
-              <article>
+              <article data-location-card="Main Library">
                 <span>Main Library</span>
-                <strong>4 available</strong>
+                <strong>5 available</strong>
                 <small>Levels 1 and 2</small>
               </article>
-              <article>
+              <article data-location-card="Business Learning Centre">
                 <span>Business Learning Centre</span>
                 <strong>2 available</strong>
                 <small>Business study area</small>
               </article>
-              <article>
+              <article data-location-card="Engineering Study Lab">
                 <span>Engineering Study Lab</span>
                 <strong>2 available</strong>
                 <small>Project workstations</small>
